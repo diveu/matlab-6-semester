@@ -1,4 +1,4 @@
-function R=rkf45(f,a,b,ya,M,tol)
+function R=BRAIN_rkf45(f,a,b,ya,M,tol)
 
 %Input    - f is the function entered as a string 'f'
 %         - a and b are the left and right endpoints
