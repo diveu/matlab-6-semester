@@ -51,22 +51,26 @@ function varargout = Main_OutputFcn(hObject, eventdata, handles)
 function MainTools_Callback(hObject, eventdata, handles)
 
 function ExamplesLib_Callback(hObject, eventdata, handles)
-    try
-        open('GUI_Example.fig');
-    catch
-        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
-    end
+%     try
+        global closeExamplesWindowViaOpenExampleButton closeExamplesWindowViaCloseButton mainHandles;
+        closeExamplesWindowViaOpenExampleButton = false;
+        closeExamplesWindowViaCloseButton = false;
+        mainHandles = guihandles;
+        run('GUI_Example.m');
+%     catch
+%         somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+%     end
 
 function Help_Callback(hObject, eventdata, handles)
     try
-        open('GUI_Help.fig');
+        run('GUI_Help.m');
     catch
         somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
     end
         
 function About_Callback(hObject, eventdata, handles)
     try
-        open('GUI_About.fig');
+        run('GUI_About.m');
     catch
         somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
     end
@@ -164,11 +168,7 @@ function InputTaskTable_CellEditCallback(hObject, eventdata, handles)
         currentData = get(hObject, 'Data');
         countOfRows = size(currentData, 1);
         newData = zeros(0, 0);
-        
-        initialVectorTableCheck
-        conditionsTableDataCheck
-        inputTaskTableCheck
-        
+      
         for i = 1:countOfRows
             if i ~= countOfRows
                 if strcmp(currentData(i, 2), '')
@@ -482,43 +482,13 @@ function SolveTask_Callback(hObject, eventdata, handles)
         set(handles.TaskResults, 'Enable', 'on');
         set(handles.DeleteSolve, 'Enable', 'on');
         
-        global solve segBegin segEnd;
+        global solve inputTaskTableData conditionsTableData segBegin;
+        global segEnd stepsCount accuracyExternal accuracyInternal;
+        global solvingMethod timeOfT initialVectorTableData;
         
-        p = [2; 0; -0.5; 0.5];
-        ftx = get(handles.InputTaskTable, 'Data');
-        ftx = ftx(1:end-1, 2);
-        n = size(ftx, 1);
         
-        dftx = BRAIN_findDftx(ftx);
-        XMatrix = BRAIN_generateXMatrix(size(ftx, 1));
-        initConditionForXMatrix = BRAIN_generateInitConditionForXMatrix(size(ftx, 1));
-        initConditionsForInternalTask = [p; initConditionForXMatrix]';
-        DX = dftx*XMatrix;
+        solve = BRAIN_solve(inputTaskTableData, conditionsTableData, segBegin, segEnd, stepsCount, accuracyExternal, accuracyInternal, solvingMethod, timeOfT, initialVectorTableData);
         
-        strDX = zeros(0);
-        tmpStrDX = zeros(0);
-        
-        for i = 1:n
-            for j = 1:n
-                a = char(DX(j, i));
-                A = string(a);
-                tmpStrDX = [tmpStrDX; A];
-            end
-            strDX = [strDX tmpStrDX];
-            tmpStrDX = zeros(0);
-        end
-        
-        strDX = reshape(strDX, [n*n, 1]);
-        toFile = [ftx; strDX];
-        BRAIN_writeSystemToFile(toFile);
-        [T, X] = ode45(@systemTemp, [segBegin:0.1:segEnd], initConditionsForInternalTask);
-        
-        X = X(:, n+1:end);
-        %X = reshape(X, [n, n])
-        charFP = get(handles.ConditionsTable, 'Data');
-        FP = BRAIN_makeFP(charFP, segBegin, segEnd);
-        %FP0 = 
-        BRAIN_findDFP(FP, X)
     %catch
         %somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
     %end

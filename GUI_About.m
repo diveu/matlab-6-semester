@@ -17,6 +17,10 @@ function varargout = GUI_About(varargin)
     end
 
 function About_OpeningFcn(hObject, eventdata, handles, varargin)
+    matlabImage = imread('author.jpg');
+    image(matlabImage)
+    axis off
+    axis image
     handles.output = hObject;
     guidata(hObject, handles);
 
