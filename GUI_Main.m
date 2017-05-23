@@ -51,15 +51,15 @@ function varargout = Main_OutputFcn(hObject, eventdata, handles)
 function MainTools_Callback(hObject, eventdata, handles)
 
 function ExamplesLib_Callback(hObject, eventdata, handles)
-%     try
+    try
         global closeExamplesWindowViaOpenExampleButton closeExamplesWindowViaCloseButton mainHandles;
         closeExamplesWindowViaOpenExampleButton = false;
         closeExamplesWindowViaCloseButton = false;
         mainHandles = guihandles;
         run('GUI_Example.m');
-%     catch
-%         somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
-%     end
+    catch
+        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+    end
 
 function Help_Callback(hObject, eventdata, handles)
     try
@@ -478,7 +478,7 @@ function TimeOfT_CreateFcn(hObject, eventdata, handles)
 %Callbacks of solve buttons
 
 function SolveTask_Callback(hObject, eventdata, handles)
-    %try
+    try
         set(handles.TaskResults, 'Enable', 'on');
         set(handles.DeleteSolve, 'Enable', 'on');
         
@@ -489,16 +489,16 @@ function SolveTask_Callback(hObject, eventdata, handles)
         
         solve = BRAIN_solve(inputTaskTableData, conditionsTableData, segBegin, segEnd, stepsCount, accuracyExternal, accuracyInternal, solvingMethod, timeOfT, initialVectorTableData);
         
-    %catch
-        %somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
-    %end
-
-function TaskResults_Callback(hObject, eventdata, handles)
-    try
-        open('GUI_Results.fig');
     catch
         somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
     end
+
+function TaskResults_Callback(hObject, eventdata, handles)
+%     try
+        run('GUI_Results.m');
+%     catch
+%         somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+%     end
 
 function DeleteSolve_Callback(hObject, eventdata, handles)
     try

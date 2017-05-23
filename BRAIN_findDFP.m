@@ -15,7 +15,6 @@ function [ DFP ] = BRAIN_findDFP( FP, X )
     XP0 = num2cell([X(1, 1:n) X(end, 1:n)]);
 
     FP0 = subs(FP(:, 1), symArray, XP0);
-    FP
     symArray = sym('xa%d', [1 n]);
     syms(symArray);
     DRXA = jacobian(FP, symArray)

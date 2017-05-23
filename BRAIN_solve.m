@@ -26,9 +26,9 @@ function solve = BRAIN_solve(inputTaskTableData, conditionsTableData, segBegin, 
         strDX = reshape(strDX, [n*n, 1]);
         toFile = [ftx; strDX]
         BRAIN_writeSystemToFile(toFile);
-        [T, X] = ode45(@systemTemp, [segBegin:0.1:segEnd], initConditionsForInternalTask);
-        
-        charFP = conditionsTableData;
-        FP = BRAIN_makeFP(charFP, segBegin, segEnd);
-        BRAIN_findDFP(FP, X)
+        [T, X] = ode45(@systemTemp, [segBegin segEnd], initConditionsForInternalTask);
+        solve = [T, X];
+%         charFP = conditionsTableData;
+%         FP = BRAIN_makeFP(charFP, segBegin, segEnd);
+%         BRAIN_findDFP(FP, X)
 end
