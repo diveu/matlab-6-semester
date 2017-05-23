@@ -55,7 +55,7 @@ function OpenExample_Callback(hObject, eventdata, handles)
         set(mainHandles.TaskResults, 'Enable', 'on');
         close;
 %     catch
-%         somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+%          somethingWrong = errordlg('Произошла ошибка', 'Ошибка');
 %     end
 
 function CloseExampleWindow_Callback(hObject, eventdata, handles)

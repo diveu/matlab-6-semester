@@ -31,7 +31,7 @@ function GUI_Results_OpeningFcn(hObject, eventdata, handles, varargin)
         set(handles.DataTable, 'ColumnName', columnsHeaders);
         set(handles.DataTable, 'Data', solve);
     catch
-        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+         somethingWrong = errordlg('Произошла ошибка', 'Ошибка');
     end
 
 function varargout = GUI_Results_OutputFcn(hObject, eventdata, handles) 
@@ -46,7 +46,7 @@ function Xpopupmenu1_Callback(hObject, eventdata, handles)
         cla(handles.axes2);
         plot(solve(:, x1+1), solve(:, x2+1));
     catch
-        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+         somethingWrong = errordlg('Произошла ошибка', 'Ошибка');
     end
 
 
@@ -65,7 +65,7 @@ function Xpopupmenu1_CreateFcn(hObject, eventdata, handles)
             set(hObject,'BackgroundColor','white');
         end
     catch
-        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+         somethingWrong = errordlg('Произошла ошибка', 'Ошибка');
     end
 
 
@@ -78,7 +78,7 @@ function Xpopupmenu2_Callback(hObject, eventdata, handles)
         cla(handles.axes2);
         plot(solve(:, x1+1), solve(:, x2+1));
     catch
-        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+         somethingWrong = errordlg('Произошла ошибка', 'Ошибка');
     end
 
 
@@ -97,7 +97,7 @@ function Xpopupmenu2_CreateFcn(hObject, eventdata, handles)
             set(hObject,'BackgroundColor','white');
         end
     catch
-        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+         somethingWrong = errordlg('Произошла ошибка', 'Ошибка');
     end
 
 
@@ -164,7 +164,7 @@ function TXtable_CellEditCallback(hObject, eventdata, handles)
             end
         end
     catch
-        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+         somethingWrong = errordlg('Произошла ошибка', 'Ошибка');
     end
 
 function TXtable_CreateFcn(hObject, eventdata, handles)
@@ -177,7 +177,7 @@ function TXtable_CreateFcn(hObject, eventdata, handles)
         end
         set(hObject, 'Data', data);
     catch
-        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+         somethingWrong = errordlg('Произошла ошибка', 'Ошибка');
     end
 
 
@@ -208,5 +208,5 @@ function draw_Callback(hObject, eventdata, handles)
         grid on;
         plot(solve(:, x1+1), toPlot);
     catch
-        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+         somethingWrong = errordlg('Произошла ошибка', 'Ошибка');
     end

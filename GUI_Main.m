@@ -58,21 +58,21 @@ function ExamplesLib_Callback(hObject, eventdata, handles)
         mainHandles = guihandles;
         run('GUI_Example.m');
     catch
-        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+        somethingWrong = errordlg('Произошла ошибка в ExamplesLib_Callback', 'Ошибка');
     end
 
 function Help_Callback(hObject, eventdata, handles)
     try
         run('GUI_Help.m');
     catch
-        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+        somethingWrong = errordlg('Произошла ошибка в Help', 'Ошибка');
     end
         
 function About_Callback(hObject, eventdata, handles)
     try
         run('GUI_About.m');
     catch
-        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+        somethingWrong = errordlg('Произошла ошибка в About', 'Ошибка');
     end
 
 function Save_Callback(hObject, eventdata, handles)
@@ -89,7 +89,7 @@ function Save_Callback(hObject, eventdata, handles)
         buttons = {get(handles.SolveTask, 'Enable'); get(handles.DeleteSolve, 'Enable'); get(handles.TaskResults, 'Enable')};
         save(saveDataName, 'solve', 'inputTaskTableData', 'conditionsTableData', 'segBegin', 'segEnd', 'stepsCount', 'accuracyExternal', 'accuracyInternal', 'solvingMethod', 'timeOfT', 'initialVectorTableData', 'buttons');
     catch
-        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+        somethingWrong = errordlg('Произошла ошибка в сохранении', 'Ошибка');
     end
 
 function Load_Callback(hObject, eventdata, handles)
@@ -120,7 +120,7 @@ function Load_Callback(hObject, eventdata, handles)
         set(handles.DeleteSolve, 'Enable', char(buttons(2, 1)));
         set(handles.TaskResults, 'Enable', char(buttons(3, 1)));
     catch
-        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+        somethingWrong = errordlg('Произошла ошибка при загрузке примера', 'Ошибка');
     end
     
 function Exit_Callback(hObject, eventdata, handles)
@@ -153,7 +153,7 @@ function Exit_Callback(hObject, eventdata, handles)
             end
         end
     catch
-        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+        somethingWrong = errordlg('Произошла ошибка при выходе', 'Ошибка');
     end
     
 %Callbacks of menu functions 
@@ -259,7 +259,7 @@ function InputTaskTable_CellEditCallback(hObject, eventdata, handles)
         end
 
     catch
-        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+        somethingWrong = errordlg('Произошла ошибка при вводе', 'Ошибка');
     end
     
 function ConditionsTable_CellEditCallback(hObject, eventdata, handles)
@@ -487,17 +487,17 @@ function SolveTask_Callback(hObject, eventdata, handles)
         global solvingMethod timeOfT initialVectorTableData;
         
         
-        solve = BRAIN_solve(inputTaskTableData, conditionsTableData, segBegin, segEnd, stepsCount, accuracyExternal, accuracyInternal, solvingMethod, timeOfT, initialVectorTableData);
+        solve = logic_solve(inputTaskTableData, conditionsTableData, segBegin, segEnd, stepsCount, accuracyExternal, accuracyInternal, solvingMethod, timeOfT, initialVectorTableData);
         
     catch
-        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+        somethingWrong = errordlg('Произошла ошибка при решении', 'Ошибка');
     end
 
 function TaskResults_Callback(hObject, eventdata, handles)
 %     try
         run('GUI_Results.m');
 %     catch
-%         somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+%         somethingWrong = errordlg('Произошла ошибка при показе результатов', 'Ошибка');
 %     end
 
 function DeleteSolve_Callback(hObject, eventdata, handles)
@@ -508,7 +508,7 @@ function DeleteSolve_Callback(hObject, eventdata, handles)
         global solve;
         solve = zeros(0);
     catch
-        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+        somethingWrong = errordlg('Произошла ошибка при удалении результатов', 'Ошибка');
     end
     
 %Callbacks of solve buttons

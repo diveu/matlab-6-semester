@@ -1,4 +1,4 @@
-function [ DFP ] = BRAIN_findDFP( FP, X )
+function [ DFP ] = logic_findDFP( FP, X )
     DFP = zeros(0);
     n = size(FP, 1);
     

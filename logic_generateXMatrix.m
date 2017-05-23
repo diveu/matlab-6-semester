@@ -1,4 +1,4 @@
- function [ XMatrix ] = BRAIN_generateXMatrix( n )
+ function [ XMatrix ] = logic_generateXMatrix( n )
     %n = 3;
     tmpSymArray = zeros(0);
     XMatrix = zeros(0);

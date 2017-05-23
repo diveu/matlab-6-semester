@@ -1,4 +1,4 @@
- function [ FP ] = BRAIN_makeFP( charFP, segBegin, segEnd )
+ function [ FP ] = logic_makeFP( charFP, segBegin, segEnd )
     n = size(charFP, 1);
     FP = zeros(0);
     tmpFP = zeros(0);

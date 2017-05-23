@@ -1,12 +1,12 @@
-function BRAIN_writeSysyemToFile(system)
-    fileID = fopen('systemTemp2.m', 'w'); 
+function logic_writeSysyemToFile(system)
+    fileID = fopen('systemTemp.m', 'w'); 
     fclose(fileID);
     if fileID == -1 
         error('File is not opened'); 
     end
     n = size(system, 1);
-    fileID = fopen('systemTemp2.m', 'a'); 
-    fileHeader = ['function [ dp ] = systemTemp2(mu, p)\n\tdp = zeros(' num2str(n) ', 1);\n'];
+    fileID = fopen('systemTemp.m', 'a'); 
+    fileHeader = ['function [ dx ] = systemTemp(t, x)\n\tdx = zeros(' num2str(n) ', 1);\n'];
     fprintf(fileID, fileHeader);
     
     for i = 1:n
