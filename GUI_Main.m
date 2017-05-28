@@ -34,7 +34,7 @@ function Main_OpeningFcn(hObject, eventdata, handles, varargin)
     
     set(handles.InputTaskTable , 'Data', initInputTaskTable);
     set(handles.ConditionsTable , 'Data', initConditionsTable);
-    set(handles.InitialVectorTable, 'Data', initInitialVectorTable, 'ColumnWidth', {35}, 'ColumnEditable', true);
+    set(handles.InitialVectorTable, 'Data', initInitialVectorTable, 'ColumnWidth', 'auto', 'ColumnEditable', true);
     set(handles.SolveTask, 'Enable', 'off');
     set(handles.DeleteSolve, 'Enable', 'off');
     set(handles.TaskResults, 'Enable', 'off');
@@ -52,9 +52,7 @@ function MainTools_Callback(hObject, eventdata, handles)
 
 function ExamplesLib_Callback(hObject, eventdata, handles)
     try
-        global closeExamplesWindowViaOpenExampleButton closeExamplesWindowViaCloseButton mainHandles;
-        closeExamplesWindowViaOpenExampleButton = false;
-        closeExamplesWindowViaCloseButton = false;
+        global mainHandles;
         mainHandles = guihandles;
         run('GUI_Example.m');
     catch
@@ -77,23 +75,33 @@ function About_Callback(hObject, eventdata, handles)
 
 function Save_Callback(hObject, eventdata, handles)
     try
-        set(hObject, 'Checked', 'on');
-        [filename, pathname] = uiputfile('*.mat','Сохранить как...');
-        if pathname == 0 
-            return
+        i = 1;
+        while true
+            fn = ['New task' num2str(i) '.mat'];
+            if exist(fn, 'file') 
+                i = i + 1;
+            else 
+               [filename, pathname] = uiputfile(fn, 'Сохранить как...');
+               if pathname == 0 
+                   i = i - 1;
+                   return
+               end 
+               break;
+            end
         end
+        set(hObject, 'Checked', 'on');
         saveDataName = fullfile(pathname, filename); 
         
         global solve inputTaskTableData conditionsTableData segBegin;
-        global segEnd stepsCount accuracyExternal accuracyInternal solvingMethod timeOfT initialVectorTableData;
+        global segEnd stepsCount stepSize accuracyExternal accuracyInternal solvingMethodForExternalTask solvingMethodForInternalTask timeOfT initialVectorTableData;
         buttons = {get(handles.SolveTask, 'Enable'); get(handles.DeleteSolve, 'Enable'); get(handles.TaskResults, 'Enable')};
-        save(saveDataName, 'solve', 'inputTaskTableData', 'conditionsTableData', 'segBegin', 'segEnd', 'stepsCount', 'accuracyExternal', 'accuracyInternal', 'solvingMethod', 'timeOfT', 'initialVectorTableData', 'buttons');
+        save(saveDataName, 'solve', 'stepsCount', 'inputTaskTableData', 'conditionsTableData', 'segBegin', 'segEnd', 'stepsCount', 'accuracyExternal', 'accuracyInternal', 'solvingMethodForExternalTask', 'solvingMethodForInternalTask','timeOfT', 'initialVectorTableData', 'buttons');
     catch
         somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
     end
 
 function Load_Callback(hObject, eventdata, handles)
-    try
+%     try
         set(handles.Save, 'Checked', 'on');
         [filename, pathname] = uigetfile('*.mat', 'Открыть файл');
         if pathname == 0 
@@ -102,26 +110,28 @@ function Load_Callback(hObject, eventdata, handles)
         loadDataName = fullfile(pathname, filename);
         
         global solve inputTaskTableData conditionsTableData segBegin;
-        global segEnd stepsCount accuracyExternal accuracyInternal solvingMethod timeOfT initialVectorTable;
+        global segEnd stepsCount stepSize accuracyExternal accuracyInternal solvingMethodForExternalTask solvingMethodForInternalTask timeOfT initialVectorTableData;
         
-        load(loadDataName, 'solve', 'inputTaskTableData', 'conditionsTableData', 'segBegin', 'segEnd', 'stepsCount', 'accuracyExternal', 'accuracyInternal', 'solvingMethod', 'timeOfT', 'initialVectorTableData', 'buttons');
+        load(loadDataName, 'solve', 'stepsCount', 'inputTaskTableData', 'conditionsTableData', 'segBegin', 'segEnd', 'stepsCount', 'accuracyExternal', 'accuracyInternal', 'solvingMethodForExternalTask', 'solvingMethodForInternalTask','timeOfT', 'initialVectorTableData', 'buttons');
         
         set(handles.InputTaskTable, 'Data', inputTaskTableData);
         set(handles.ConditionsTable, 'Data', conditionsTableData);
         set(handles.SegBegin, 'String', segBegin);
         set(handles.SegEnd, 'String', segEnd);
         set(handles.StepsCount, 'String', stepsCount);
+        set(handles.StepSize, 'String', stepSize);
         set(handles.AccuracyExternal, 'String', accuracyExternal);
         set(handles.AccuracyInternal, 'String', accuracyInternal);
-        set(handles.SolvingMethodsPopupmenu, 'Value', solvingMethod);
+        set(handles.SolvingMethodForExternalTaskPopupmenu, 'Value', solvingMethodForExternalTask);
+        set(handles.SolvingMethodForInternalTaskPopupmenu, 'Value', solvingMethodForInternalTask);
         set(handles.TimeOfT, 'String', timeOfT);
         set(handles.InitialVectorTable, 'Data', initialVectorTableData);
         set(handles.SolveTask, 'Enable', char(buttons(1, 1)));
         set(handles.DeleteSolve, 'Enable', char(buttons(2, 1)));
         set(handles.TaskResults, 'Enable', char(buttons(3, 1)));
-    catch
-        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
-    end
+%     catch
+%         somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+%     end
     
 function Exit_Callback(hObject, eventdata, handles)
     try
@@ -145,10 +155,9 @@ function Exit_Callback(hObject, eventdata, handles)
                     end
                     saveDataName = fullfile(pathname, filename); 
                     global solve inputTaskTableData conditionsTableData segBegin;
-                    global segEnd stepsCount accuracyExternal accuracyInternal solvingMethod timeOfT initialVectorTable;
-                    
-                    buttons = [handles.SolveTask, handles.DeleteSolve, handles.TaskResults];
-                    save(saveDataName, 'solve', 'inputTaskTableData', 'conditionsTableData', 'segBegin', 'segEnd', 'stepsCount', 'accuracyExternal', 'accuracyInternal', 'solvingMethod', 'timeOfT', 'initialVectorTable', 'buttons');
+                    global segEnd stepsCount stepSize accuracyExternal accuracyInternal solvingMethodForExternalTask solvingMethodForInternalTask timeOfT initialVectorTableData;
+                    buttons = {get(handles.SolveTask, 'Enable'); get(handles.DeleteSolve, 'Enable'); get(handles.TaskResults, 'Enable')};
+                    save(saveDataName, 'solve', 'stepsCount', 'inputTaskTableData', 'conditionsTableData', 'segBegin', 'segEnd', 'stepsCount', 'accuracyExternal', 'accuracyInternal', 'solvingMethodForExternalTask', 'solvingMethodForInternalTask','timeOfT', 'initialVectorTableData', 'buttons');
                     close;
             end
         end
@@ -162,9 +171,9 @@ function Exit_Callback(hObject, eventdata, handles)
 %Callbacks of task parametrs
     
 function InputTaskTable_CellEditCallback(hObject, eventdata, handles)
-    try
+%     try
         global inputTaskTableData;
-        global inputTaskTableCheck initialVectorTableCheck conditionsTableDataCheck;
+        set(handles.Save, 'Checked', 'off');
         currentData = get(hObject, 'Data');
         countOfRows = size(currentData, 1);
         newData = zeros(0, 0);
@@ -207,21 +216,14 @@ function InputTaskTable_CellEditCallback(hObject, eventdata, handles)
             end
         end
         
-        if strcmp(inputTaskTableData(countOfRows, 2), '') && (countOfRows == 1)
-            initialVectorTableCheck = false;
-            conditionsTableDataCheck = false;
-            inputTaskTableCheck = false;
-        end
-        
         currentData = get(hObject, 'Data');
         condData = get(handles.ConditionsTable, 'Data');
         initData = get(handles.InitialVectorTable, 'Data');
+        
         if strcmp(currentData(end, 2), '') 
             if (size(currentData, 1) - 1) > size(condData, 1)
                 condData = [condData; {''}];
                 initData = [initData {''}];
-                initialVectorTableCheck = false;
-                conditionsTableDataCheck = false;
             end
             if (size(currentData, 1) - 1) < size(condData, 1)
                 condData = condData(1:end-1, :);
@@ -231,60 +233,65 @@ function InputTaskTable_CellEditCallback(hObject, eventdata, handles)
             if size(currentData, 1) > size(condData, 1)
                 condData = [condData; {''}];
                 initData = [initData {''}];
-                initialVectorTableCheck = false;
-                conditionsTableDataCheck = false;
             end
             if size(currentData, 1) < size(condData, 1)
                 condData = condData(1:end-1, :);
                 initData = initData(:, 1:end-1);
             end
         end
+        
         set(handles.ConditionsTable, 'Data', condData);
         set(handles.InitialVectorTable, 'Data', initData);
         
-        inputTaskTableData = get(hObject, 'Data');
-        for i = 1:size(inputTaskTableData, 1)-1
-          if strcmp(inputTaskTableData(i, 2), '')
-              inputTaskTableCheck = false;
-              break;
-          else
-              inputTaskTableCheck = true;
-          end
+        T1 = get(handles.ConditionsTable, 'Data');
+        T2 = get(handles.InitialVectorTable, 'Data');
+        T3 = get(hObject, 'Data');
+        
+        n = size(T3, 1)-1;
+        
+        for i = 1:n
+            if strcmp(T1(n, 1), '') || strcmp(T2(1, n), '') || strcmp(T3(n, 2), '')
+                set(handles.TaskResults, 'Enable', 'off');
+                set(handles.SolveTask, 'Enable', 'off');
+                set(handles.DeleteSolve, 'Enable', 'off');
+                return
+            end
         end
-    
-        if initialVectorTableCheck && inputTaskTableCheck && conditionsTableDataCheck
-            set(handles.SolveTask, 'Enable', 'on');
-        else
-            set(handles.SolveTask, 'Enable', 'off');
-        end
-
-    catch
-        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
-    end
+        set(handles.SolveTask, 'Enable', 'on');
+        set(handles.TaskResults, 'Enable', 'off');
+        set(handles.DeleteSolve, 'Enable', 'off');
+%     catch
+%         somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+%     end
     
 function ConditionsTable_CellEditCallback(hObject, eventdata, handles)
     global conditionsTableData;
-    global inputTaskTableCheck initialVectorTableCheck conditionsTableDataCheck;
     conditionsTableData = get(hObject, 'Data');
-    for i = 1:size(conditionsTableData, 1)
-        if strcmp(conditionsTableData(i, 1), '')
-            conditionsTableDataCheck = false;
-            break;
-        else
-            conditionsTableDataCheck = true;
+    
+    T1 = get(hObject, 'Data');
+    T2 = get(handles.InitialVectorTable, 'Data');
+    T3 = get(handles.InputTaskTable, 'Data');
+
+    n = size(T3, 1)-1;
+
+    for i = 1:n
+        if strcmp(T1(n, 1), '') || strcmp(T2(1, n), '') || strcmp(T3(n, 2), '')
+            set(handles.TaskResults, 'Enable', 'off');
+            set(handles.SolveTask, 'Enable', 'off');
+            set(handles.DeleteSolve, 'Enable', 'off');
+            return
         end
     end
-    
-    if initialVectorTableCheck && inputTaskTableCheck && conditionsTableDataCheck
-        set(handles.SolveTask, 'Enable', 'on');
-    else
-        set(handles.SolveTask, 'Enable', 'off');
-    end
+    set(handles.SolveTask, 'Enable', 'on');
+    set(handles.TaskResults, 'Enable', 'off');
+    set(handles.DeleteSolve, 'Enable', 'off');
 
 function SegBegin_Callback(hObject, eventdata, handles)
     try
         global segBegin;
-        segBegin = str2double(get(hObject, 'String'));
+        segBegin = get(hObject, 'String');
+        segBegin = sym(segBegin);
+        segBegin = double(segBegin);
         if isnan(segBegin)
             set(hObject, 'ForegroundColor', 'red');
             set(hObject, 'String', 'Error');
@@ -299,7 +306,9 @@ function SegBegin_Callback(hObject, eventdata, handles)
 function SegEnd_Callback(hObject, eventdata, handles)
     try
         global segEnd;
-        segEnd = str2double(get(hObject, 'String'));
+        segEnd = get(hObject, 'String');
+        segEnd = sym(segEnd);
+        segEnd = double(segEnd);
         if isnan(segEnd)
             set(hObject, 'ForegroundColor', 'red');
             set(hObject, 'String', 'Error');
@@ -314,7 +323,9 @@ function SegEnd_Callback(hObject, eventdata, handles)
 function StepsCount_Callback(hObject, eventdata, handles)
     try
         global stepsCount;
-        stepsCount = str2double(get(hObject, 'String'));
+        stepsCount = get(hObject, 'String');
+        stepsCount = sym(stepsCount);
+        stepsCount = double(stepsCount);
         if isnan(stepsCount)
             set(hObject, 'ForegroundColor', 'red');
             set(hObject, 'String', 'Error');
@@ -329,7 +340,9 @@ function StepsCount_Callback(hObject, eventdata, handles)
 function AccuracyExternal_Callback(hObject, eventdata, handles)
     try
         global accuracyExternal;
-        accuracyExternal = str2double(get(hObject, 'String'));
+        accuracyExternal = get(hObject, 'String');
+        accuracyExternal = sym(accuracyExternal);
+        accuracyExternal = double(accuracyExternal);
         if isnan(accuracyExternal)
             set(hObject, 'ForegroundColor', 'red');
             set(hObject, 'String', 'Error');
@@ -344,35 +357,62 @@ function AccuracyExternal_Callback(hObject, eventdata, handles)
 function AccuracyInternal_Callback(hObject, eventdata, handles)
     try
         global accuracyInternal;
-        accuracyInternal = str2double(get(hObject, 'String'));
+        accuracyInternal = get(hObject, 'String');
+        accuracyInternal = sym(accuracyInternal);
+        accuracyInternal = double(accuracyInternal);
         if isnan(accuracyInternal)
             set(hObject, 'ForegroundColor', 'red');
             set(hObject, 'String', 'Error');
             accuracyInternal = 0;
         end
-        uicontrol(handles.SolvingMethodsPopupmenu);
+        uicontrol(handles.SolvingMethodForExternalTaskPopupmenu);
     catch
         set(hObject, 'ForegroundColor', 'red');
         set(hObject, 'String', 'Error');
     end
 
-function SolvingMethodsPopupmenu_Callback(hObject, eventdata, handles)
-    global solvingMethod solvingMethodName;
-    solvingMethod = get(hObject, 'Value');
-    solvingMethodName = get(hObject, 'String');
-    solvingMethodName = solvingMethodName(solvingMethod);
-    uicontrol(handles.TimeOfT);
+function SolvingMethodForExternalTaskPopupmenu_Callback(hObject, eventdata, handles)
+    global solvingMethodForExternalTask solvingMethodNameForExternalTask;
+    solvingMethodForExternalTask = get(hObject, 'Value');
+    solvingMethodNameForExternalTask = get(hObject, 'String');
+    solvingMethodNameForExternalTask = solvingMethodNameForExternalTask(solvingMethodForExternalTask);
+    uicontrol(handles.SolvingMethodForInternalTaskPopupmenu);
 
+function SolvingMethodForInternalTaskPopupmenu_Callback(hObject, eventdata, handles)
+    global solvingMethodForInternalTask solvingMethodNameForInternalTask;
+    solvingMethodForInternalTask = get(hObject, 'Value');
+    solvingMethodNameForInternalTask = get(hObject, 'String');
+    solvingMethodNameForInternalTask = solvingMethodNameForInternalTask(solvingMethodForInternalTask);
+    uicontrol(handles.StepSize);
+    
+function StepSize_Callback(hObject, eventdata, handles)
+    try
+        global stepSize;
+        stepSize = get(hObject, 'String');
+        stepSize = sym(stepSize);
+        stepSize = double(stepSize);
+        if isnan(stepSize)
+            set(hObject, 'ForegroundColor', 'red');
+            set(hObject, 'String', 'Error');
+            stepSize = 0;
+        end
+        uicontrol(handles.TimeOfT);
+    catch
+        set(hObject, 'ForegroundColor', 'red');
+        set(hObject, 'String', 'Error');
+    end    
+    
 function TimeOfT_Callback(hObject, eventdata, handles)
     try
         global timeOfT;
-        timeOfT = str2double(get(hObject, 'String'));
+        timeOfT = get(hObject, 'String');
+        timeOfT = sym(timeOfT);
+        timeOfT = double(timeOfT);
         if isnan(timeOfT)
             set(hObject, 'ForegroundColor', 'red');
             set(hObject, 'String', 'Error');
             timeOfT = 0;
         end
-        uicontrol(handles.InitialVectorTable);
     catch
         set(hObject, 'ForegroundColor', 'red');
         set(hObject, 'String', 'Error');
@@ -380,23 +420,27 @@ function TimeOfT_Callback(hObject, eventdata, handles)
 
 function InitialVectorTable_CellEditCallback(hObject, eventdata, handles)
     global initialVectorTableData;
-    global inputTaskTableCheck initialVectorTableCheck conditionsTableDataCheck;
     initialVectorTableData = get(hObject, 'Data');
-    for i = 1:size(initialVectorTableData, 2)
-        if strcmp(initialVectorTableData(1, i), '')
-            initialVectorTableCheck = false;
-            break;
-        else
-            initialVectorTableCheck = true;
+    initialVectorTableData = sym(initialVectorTableData);
+    initialVectorTableData = double(initialVectorTableData);
+    
+    T1 = get(handles.ConditionsTable, 'Data');
+    T2 = get(hObject, 'Data');
+    T3 = get(handles.InputTaskTable, 'Data');
+
+    n = size(T3, 1)-1;
+
+    for i = 1:n
+        if strcmp(T1(n, 1), '') || strcmp(T2(1, n), '') || strcmp(T3(n, 2), '')
+            set(handles.TaskResults, 'Enable', 'off');
+            set(handles.SolveTask, 'Enable', 'off');
+            set(handles.DeleteSolve, 'Enable', 'off');
+            return
         end
     end
-    
-    if initialVectorTableCheck && inputTaskTableCheck && conditionsTableDataCheck
-        set(handles.SolveTask, 'Enable', 'on');
-    else
-        set(handles.SolveTask, 'Enable', 'off');
-    end
-    uicontrol(handles.SolveTask);
+    set(handles.SolveTask, 'Enable', 'on');
+    set(handles.TaskResults, 'Enable', 'off');
+    set(handles.DeleteSolve, 'Enable', 'off');
 
 %Callbacks of task parametrs
 
@@ -439,6 +483,12 @@ function TimeOfT_KeyPressFcn(hObject, eventdata, handles)
         set(hObject, 'String', eventdata.Character);
     end
     
+function StepSize_KeyPressFcn(hObject, eventdata, handles)
+    if strcmp(get(hObject, 'String'), 'Error')
+        set(hObject, 'ForegroundColor', 'black');
+        set(hObject, 'String', eventdata.Character);
+    end
+    
 %KeyPressFcns of task parametrs    
 
 
@@ -449,49 +499,58 @@ function SegBegin_CreateFcn(hObject, eventdata, handles)
     
 function SegEnd_CreateFcn(hObject, eventdata, handles)
     global segEnd;
-    segEnd = 0;
+    segEnd = 1;
     
 function StepsCount_CreateFcn(hObject, eventdata, handles)
     global stepsCount;
-    stepsCount = 0;
+    stepsCount = 1;
 
 function AccuracyExternal_CreateFcn(hObject, eventdata, handles)
     global accuracyExternal;
-    accuracyExternal = 0;
+    accuracyExternal = 0.001;
 
 function AccuracyInternal_CreateFcn(hObject, eventdata, handles)
     global accuracyInternal;
     accuracyInternal = 0;
 
-function SolvingMethodsPopupmenu_CreateFcn(hObject, eventdata, handles)
-    global solvingMethod solvingMethodName;
-    solvingMethod = 1;
-    solvingMethodName = 'ode45';
+function SolvingMethodForExternalTaskPopupmenu_CreateFcn(hObject, eventdata, handles)
+    global solvingMethodForExternalTask solvingMethodForExternalTaskName;
+    solvingMethodForExternalTask = 1;
+    solvingMethodForExternalTaskName = 'ode45';
+    
+function SolvingMethodForInternalTaskPopupmenu_CreateFcn(hObject, eventdata, handles)
+    global solvingMethodForInternalTask solvingMethodForInternalTaskName;
+    solvingMethodForInternalTask = 1;
+    solvingMethodForInternalTaskName = 'ode45';
 
 function TimeOfT_CreateFcn(hObject, eventdata, handles)
     global timeOfT;
     timeOfT = 0;
     
+function StepSize_CreateFcn(hObject, eventdata, handles)
+    global stepSize;
+    stepSize = 0.01;
 %CreateFcns of task parametrs
 
 
 %Callbacks of solve buttons
 
 function SolveTask_Callback(hObject, eventdata, handles)
-    try
+%     try
         set(handles.TaskResults, 'Enable', 'on');
         set(handles.DeleteSolve, 'Enable', 'on');
         
         global solve inputTaskTableData conditionsTableData segBegin;
         global segEnd stepsCount accuracyExternal accuracyInternal;
-        global solvingMethod timeOfT initialVectorTableData;
+        global solvingMethodForInternalTask solvingMethodForExternalTask timeOfT initialVectorTableData;
+        global stepSize; 
         
         
-        solve = BRAIN_solve(inputTaskTableData, conditionsTableData, segBegin, segEnd, stepsCount, accuracyExternal, accuracyInternal, solvingMethod, timeOfT, initialVectorTableData);
-        
-    catch
-        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
-    end
+        solve = BRAIN_solve(inputTaskTableData, conditionsTableData, segBegin, segEnd, stepsCount, accuracyExternal, accuracyInternal, solvingMethodForInternalTask, stepSize, solvingMethodForExternalTask, timeOfT, initialVectorTableData);
+%         
+%     catch
+%         somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+%     end
 
 function TaskResults_Callback(hObject, eventdata, handles)
 %     try

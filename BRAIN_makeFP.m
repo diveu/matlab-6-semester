@@ -13,6 +13,14 @@
             toReplace = ['x' num2str(n + 1 - j) '(' num2str(segEnd) ')'];
             replacement = ['xb' num2str(n + 1 - j)];
             strTmp = strrep(strTmp, toReplace, replacement); 
+            
+            toReplace = ['x' num2str(n + 1 - j) '(a)'];
+            replacement = ['xa' num2str(n + 1 - j)];
+            strTmp = strrep(strTmp, toReplace, replacement); 
+            
+            toReplace = ['x' num2str(n + 1 - j) '(b)'];
+            replacement = ['xb' num2str(n + 1 - j)];
+            strTmp = strrep(strTmp, toReplace, replacement); 
         end
         tmpFP = [tmpFP; string(strTmp)];
     end

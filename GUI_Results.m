@@ -44,7 +44,7 @@ function Xpopupmenu1_Callback(hObject, eventdata, handles)
         x1 = get(hObject, 'Value');
         x2 = get(handles.Xpopupmenu2, 'Value');
         cla(handles.axes2);
-        plot(solve(:, x1+1), solve(:, x2+1));
+        plot(solve(:, x1), solve(:, x2+1));
     catch
         somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
     end
@@ -53,7 +53,7 @@ function Xpopupmenu1_Callback(hObject, eventdata, handles)
 function Xpopupmenu1_CreateFcn(hObject, eventdata, handles)
     try
         global solve;
-        columnsHeaders = zeros(0);
+        columnsHeaders = [string('t')];
         for i = 1:size(solve, 2)-1
            str = ['<html>x<sub>' num2str(i) '</sub></html>'];
            str = string(str);
@@ -76,7 +76,7 @@ function Xpopupmenu2_Callback(hObject, eventdata, handles)
         x2 = get(hObject, 'Value');
         x1 = get(handles.Xpopupmenu1, 'Value');
         cla(handles.axes2);
-        plot(solve(:, x1+1), solve(:, x2+1));
+        plot(solve(:, x1), solve(:, x2+1));
     catch
         somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
     end
@@ -119,61 +119,80 @@ function OwnPlot_KeyPressFcn(hObject, eventdata, handles)
     
    
 function TXtable_CellEditCallback(hObject, eventdata, handles)
-    try
+%     try
         global solve;
         tmpX = zeros(0);
-        data = get(hObject, 'Data');
+        tableData = get(hObject, 'Data');
+        data = zeros(0);
         axes(handles.axes1);
-        if eventdata.Indices == [1 2]
-            answ = cell2mat(data(1, 2));
+        condition1 = (eventdata.Indices(1) == 1) && (eventdata.Indices(2) == 2);
+        condition2 = (eventdata.Indices(1) == 1) && (eventdata.Indices(2) == 3);
+        condition3 = (eventdata.Indices(1) == 1) && (eventdata.Indices(2) == 4);
+        if condition1 || condition2 || condition3
+            answ = cell2mat(tableData(1, 4));
             if answ
-                data = {'Выбрать все/отменить все', true};
+                data = {'Все', char(tableData(1, 2)), char(tableData(1, 3)), true};
                 for i = 1:size(solve, 2)-1
                     str = ['<html>x<sub>' num2str(i) '</sub></html>'];
-                    data = [data; {str, true}];
+                    data = [data; {str, char(tableData(i+1, 2)), char(tableData(i+1, 3)), true}];
                 end
                 set(hObject, 'Data', data);
 
                 hold on;
-                for i = 2:size(solve, 2)
-                    plot(solve(:, 1), solve(:, i));
+                cla(handles.axes1);
+                if strcmp(char(data(1, 2)), 'Какой-нибудь')
+                    for i = 2:size(solve, 2)
+                        plot(solve(:, 1), solve(:, i), char(data(1, 3)));
+                    end
+                else
+                    lineStyle = char(data(1, 3));
+                    lineColor = char(data(1, 2));
+                    for i = 2:size(solve, 2)
+                        plot(solve(:, 1), solve(:, i), 'Color', lineColor, 'LineStyle', lineStyle);
+                    end
                 end
             else 
 
-                data = {'Выбрать все/отменить все', false};
+                data = {'Все', char(tableData(1, 2)), char(tableData(1, 3)), false};
                 for i = 1:size(solve, 2)-1
                     str = ['<html>x<sub>' num2str(i) '</sub></html>'];
-                    data = [data; {str, false}];
+                    data = [data; {str, char(tableData(i+1, 2)), char(tableData(i+1, 3)), false}];
                 end
                 set(hObject, 'Data', data);
                 cla(handles.axes1);
             end
         else
-            data(1, :) = {'Выбрать все/отменить все', false};
-            set(hObject, 'Data', data);
-            for i = 2:size(solve, 2);
-                answ = cell2mat(data(i, 2));
+            tableData(1, :) = {'Все', char(tableData(1, 2)), char(tableData(1, 3)), true};
+            hold on;
+            cla(handles.axes1);
+            for i = 2:size(solve, 2)
+                answ = cell2mat(tableData(i, 4));
                 if answ 
-                    tmpX = [tmpX solve(:, i-1)];
+                    if strcmp(char(tableData(i, 2)), 'Какой-нибудь')
+                        plot(solve(:, 1), solve(:, i), char(tableData(i, 3)));
+                    else
+                        lineStyle = char(tableData(i, 3));
+                        lineColor = char(tableData(i, 2));
+                        plot(solve(:, 1), solve(:, i), 'LineStyle', lineStyle, 'Color', lineColor);
+                    end
+                    
+                else
+                    tableData(1, :) = {'Все', char(tableData(1, 2)), char(tableData(1, 3)), false};
                 end
             end
-
-            hold on;
-            for i = 1:size(tmpX, 2)
-                plot(solve(:, 1), tmpX(:, i));
-            end
+            set(hObject, 'Data', tableData);
         end
-    catch
-        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
-    end
+%     catch
+%         somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+%     end
 
 function TXtable_CreateFcn(hObject, eventdata, handles)
     try
         global solve;
-        data = {'Выбрать все/отменить все', false};
+        data = {'Все', 'Какой-нибудь', '-', false};
         for i = 1:size(solve, 2)-1
             str = ['<html>x<sub>' num2str(i) '</sub></html>'];
-            data = [data; {str, false}];
+            data = [data; {str, 'Какой-нибудь', '-', false}];
         end
         set(hObject, 'Data', data);
     catch
@@ -206,7 +225,31 @@ function draw_Callback(hObject, eventdata, handles)
         axes(handles.axes2);
         cla(handles.axes2);
         grid on;
-        plot(solve(:, x1+1), toPlot);
+        plot(solve(:, x1), toPlot);
     catch
         somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
     end
+
+function Exit_Callback(hObject, eventdata, handles)
+    close;
+
+
+function listbox1_Callback(hObject, eventdata, handles)
+    functionalNumber = get(hObject, 'Value');
+    if functionalNumber == 1
+        run('GUI_Functional1.m');
+    elseif functionalNumber == 2
+       run('GUI_Functional2.m');
+    end
+
+% --- Executes during object creation, after setting all properties.
+function listbox1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to listbox1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: listbox controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
