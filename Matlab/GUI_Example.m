@@ -28,7 +28,7 @@ function ExamplesListbox_Callback(hObject, eventdata, handles)
 function ExamplesListbox_CreateFcn(hObject, eventdata, handles)
 
 function OpenExample_Callback(hObject, eventdata, handles)
-%     try
+    try
         exampleNumber = get(handles.ExamplesListbox, 'Value');
         exampleNumberStr = num2str(exampleNumber);
         fileName = ['Examples/Example_' exampleNumberStr '.mat'];
@@ -55,9 +55,9 @@ function OpenExample_Callback(hObject, eventdata, handles)
         set(mainHandles.DeleteSolve, 'Enable', char(buttons(2, 1)));
         set(mainHandles.TaskResults, 'Enable', char(buttons(3, 1)));
         close;
-%     catch
-%         somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
-%     end
+    catch
+        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+    end
 
 function CloseExampleWindow_Callback(hObject, eventdata, handles)
     close;

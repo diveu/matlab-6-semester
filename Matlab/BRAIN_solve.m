@@ -161,7 +161,7 @@ function solve = BRAIN_solve(inputTaskTableData, conditionsTableData, segBegin, 
                     case 7
                         p = (BRAIN_findDFP*stepSize+p0')';
                 end
-                p(end, :)
+                p(end, :);
                 p0 = p(end, :);
                 initConditionsForInternalTask = [p0 initConditionForXMatrix];
                 waitbar((j/stepsCount) + ((i-1)/stepsCount));

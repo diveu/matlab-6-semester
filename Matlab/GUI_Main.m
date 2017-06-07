@@ -101,7 +101,7 @@ function Save_Callback(hObject, eventdata, handles)
     end
 
 function Load_Callback(hObject, eventdata, handles)
-%     try
+    try
         set(handles.Save, 'Checked', 'on');
         [filename, pathname] = uigetfile('*.mat', 'Открыть файл');
         if pathname == 0 
@@ -129,9 +129,9 @@ function Load_Callback(hObject, eventdata, handles)
         set(handles.SolveTask, 'Enable', char(buttons(1, 1)));
         set(handles.DeleteSolve, 'Enable', char(buttons(2, 1)));
         set(handles.TaskResults, 'Enable', char(buttons(3, 1)));
-%     catch
-%         somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
-%     end
+    catch
+        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+    end
     
 function Exit_Callback(hObject, eventdata, handles)
     try
@@ -171,7 +171,7 @@ function Exit_Callback(hObject, eventdata, handles)
 %Callbacks of task parametrs
     
 function InputTaskTable_CellEditCallback(hObject, eventdata, handles)
-%     try
+    try
         global inputTaskTableData;
         set(handles.Save, 'Checked', 'off');
         currentData = get(hObject, 'Data');
@@ -260,9 +260,9 @@ function InputTaskTable_CellEditCallback(hObject, eventdata, handles)
         set(handles.SolveTask, 'Enable', 'on');
         set(handles.TaskResults, 'Enable', 'off');
         set(handles.DeleteSolve, 'Enable', 'off');
-%     catch
-%         somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
-%     end
+    catch
+        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+    end
     
 function ConditionsTable_CellEditCallback(hObject, eventdata, handles)
     global conditionsTableData;
@@ -511,7 +511,7 @@ function AccuracyExternal_CreateFcn(hObject, eventdata, handles)
 
 function AccuracyInternal_CreateFcn(hObject, eventdata, handles)
     global accuracyInternal;
-    accuracyInternal = 0;
+    accuracyInternal = 0.001;
 
 function SolvingMethodForExternalTaskPopupmenu_CreateFcn(hObject, eventdata, handles)
     global solvingMethodForExternalTask solvingMethodForExternalTaskName;
@@ -536,7 +536,8 @@ function StepSize_CreateFcn(hObject, eventdata, handles)
 %Callbacks of solve buttons
 
 function SolveTask_Callback(hObject, eventdata, handles)
-%     try
+    try
+        tic;
         set(handles.TaskResults, 'Enable', 'on');
         set(handles.DeleteSolve, 'Enable', 'on');
         
@@ -547,17 +548,16 @@ function SolveTask_Callback(hObject, eventdata, handles)
         
         
         solve = BRAIN_solve(inputTaskTableData, conditionsTableData, segBegin, segEnd, stepsCount, accuracyExternal, accuracyInternal, solvingMethodForInternalTask, stepSize, solvingMethodForExternalTask, timeOfT, initialVectorTableData);
-%         
-%     catch
-%         somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
-%     end
+    catch
+        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+    end
 
 function TaskResults_Callback(hObject, eventdata, handles)
-%     try
-        run('GUI_Results.m');
-%     catch
-%         somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
-%     end
+    try      
+       run('GUI_Results.m');
+    catch
+        somethingWrong = errordlg('Что-то пошло не так :(', 'Ошибочка');
+    end
 
 function DeleteSolve_Callback(hObject, eventdata, handles)
     try
