@@ -1,5 +1,4 @@
- function [ XMatrix ] = logic_generateXMatrix( n )
-    %n = 3;
+ function [ XMatrix ] = back_generateXMatrix( n )
     tmpSymArray = zeros(0);
     XMatrix = zeros(0);
     for i = 1:n

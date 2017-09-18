@@ -17,7 +17,7 @@ function varargout = GUI_About(varargin)
     end
 
 function About_OpeningFcn(hObject, eventdata, handles, varargin)
-    matlabImage = imread('author.jpg');
+    matlabImage = imread('ava.jpg');
     image(matlabImage)
     axis off
     axis image

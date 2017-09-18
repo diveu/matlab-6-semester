@@ -1,4 +1,4 @@
-function logic_writeSysyemToFile(system)
+function back_writeSystemToFile(system)
     fileID = fopen('systemTemp.m', 'w'); 
     fclose(fileID);
     if fileID == -1 
